@@ -1,0 +1,10 @@
+Phase,Duration_Weeks,Start_Week,End_Week,Description,Critical_Path,Start_Date,End_Date
+Site Preparation & Foundation,12,0,12,"Site clearing, excavation, foundation work",True,2026-02-01,2026-04-26
+Structural Construction,20,8,28,"Concrete work, steel erection, building structure",True,2026-03-29,2026-08-16
+MEP Rough-in,16,20,36,"Mechanical, Electrical, Plumbing rough-in",True,2026-06-21,2026-10-11
+HVAC Installation,12,28,40,"HVAC systems, chillers, CRAC units",True,2026-08-16,2026-11-08
+Electrical Systems,16,32,48,"Power distribution, transformers, switchgear",True,2026-09-13,2027-01-03
+Data Center Infrastructure,20,40,60,"UPS, generators, fire suppression, monitoring",True,2026-11-08,2027-03-28
+Interior Finishing,12,48,60,"Flooring, ceilings, walls, doors",False,2027-01-03,2027-03-28
+Testing & Commissioning,8,56,64,"System testing, commissioning, validation",True,2027-02-28,2027-04-25
+Final Handover,4,60,64,"Final inspections, documentation, handover",True,2027-03-28,2027-04-25

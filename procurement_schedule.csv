@@ -1,0 +1,11 @@
+Week,Date,Milestone,Material,Quantity,UOM,Delivery_Date,Lead_Time_Weeks,Estimated_Cost,Critical_Path,Status,Responsible,Notes
+0,2025-09-14,Order Transformers,Transformers,36,Units (2-3MVA),2026-08-30,50,72000000,True,Planned,Procurement Team,Required for Electrical Systems
+1,2025-11-23,Order Medium Voltage Switchgear,Medium Voltage Switchgear,36,LineUps,2026-08-30,40,18000000,True,Planned,Procurement Team,Required for Electrical Systems
+2,2026-01-04,Order Chillers / CRAHs / CRACs,Chillers / CRAHs / CRACs,36,Units,2026-08-02,30,10800000,True,Planned,Procurement Team,Required for HVAC Installation
+3,2026-01-04,Order Cement,Cement,36,Cubic Meters,2026-01-18,2,180000,True,Planned,Procurement Team,Required for Site Preparation & Foundation
+4,2026-01-18,Order Steel Reinforcement,Steel Reinforcement,36,Tons,2026-03-15,8,2160000,True,Planned,Procurement Team,Required for Structural Construction
+5,2026-02-15,Order Bricks,Bricks,36,Units,2026-03-15,4,288,True,Planned,Procurement Team,Required for Structural Construction
+6,2026-02-22,Order Generator Sets,Generator Sets,36,Units,2026-10-25,35,180000000,True,Planned,Procurement Team,Required for Data Center Infrastructure
+7,2026-06-07,Order UPS Systems,UPS Systems,36,Units,2026-10-25,20,36000000,True,Planned,Procurement Team,Required for Data Center Infrastructure
+8,2026-06-21,Order HVAC Ductwork,HVAC Ductwork,36,Linear Meters,2026-08-02,6,72000,True,Planned,Procurement Team,Required for HVAC Installation
+9,2026-07-12,Order Fire Suppression Systems,Fire Suppression Systems,36,Units,2026-10-25,15,7200000,True,Planned,Procurement Team,Required for Data Center Infrastructure

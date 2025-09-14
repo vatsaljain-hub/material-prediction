@@ -1,0 +1,11 @@
+Material,Quantity,UOM,Construction_Phase,Phase_Start,Phase_End,Order_Date,Delivery_Date,Lead_Time_Weeks,Critical_Path,Estimated_Cost,Order_Month
+Medium Voltage Switchgear,36,LineUps,Electrical Systems,2026-09-13,2027-01-03,2025-11-23,2026-08-30,40,True,18000000,2025-11
+Transformers,36,Units (2-3MVA),Electrical Systems,2026-09-13,2027-01-03,2025-09-14,2026-08-30,50,True,72000000,2025-09
+Chillers / CRAHs / CRACs,36,Units,HVAC Installation,2026-08-16,2026-11-08,2026-01-04,2026-08-02,30,True,10800000,2026-01
+Cement,36,Cubic Meters,Site Preparation & Foundation,2026-02-01,2026-04-26,2026-01-04,2026-01-18,2,True,180000,2026-01
+Bricks,36,Units,Structural Construction,2026-03-29,2026-08-16,2026-02-15,2026-03-15,4,True,288,2026-02
+Steel Reinforcement,36,Tons,Structural Construction,2026-03-29,2026-08-16,2026-01-18,2026-03-15,8,True,2160000,2026-01
+UPS Systems,36,Units,Data Center Infrastructure,2026-11-08,2027-03-28,2026-06-07,2026-10-25,20,True,36000000,2026-06
+Generator Sets,36,Units,Data Center Infrastructure,2026-11-08,2027-03-28,2026-02-22,2026-10-25,35,True,180000000,2026-02
+Fire Suppression Systems,36,Units,Data Center Infrastructure,2026-11-08,2027-03-28,2026-07-12,2026-10-25,15,True,7200000,2026-07
+HVAC Ductwork,36,Linear Meters,HVAC Installation,2026-08-16,2026-11-08,2026-06-21,2026-08-02,6,True,72000,2026-06
