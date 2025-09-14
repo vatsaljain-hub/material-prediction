@@ -1,0 +1,11 @@
+Material,UOM,Predicted_Quantity,Estimated_Cost_Per_Unit,Total_Estimated_Cost
+Medium Voltage Switchgear,LineUps,36,500000,18000000
+Transformers,Units (2-3MVA),36,2000000,72000000
+Chillers / CRAHs / CRACs,Units,36,300000,10800000
+Cement,Cubic Meters,36,5000,180000
+Bricks,Units,36,8,288
+Steel Reinforcement,Tons,36,60000,2160000
+UPS Systems,Units,36,1000000,36000000
+Generator Sets,Units,36,5000000,180000000
+Fire Suppression Systems,Units,36,200000,7200000
+HVAC Ductwork,Linear Meters,36,2000,72000
