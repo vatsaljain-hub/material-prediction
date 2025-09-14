@@ -14,37 +14,39 @@ This solution addresses the complete material forecasting lifecycle for construc
 
 ## 🏗️ Solution Components
 
-### Stage 1: Predictive Model (50 Points)
+### Stage 1: Predictive Model 
 - **model_training.py** - Advanced ML model with feature engineering
 - Multiple algorithms (RandomForest, GradientBoosting, LinearRegression)
 - Feature importance analysis and model explainability
 - Comprehensive material predictions for data center
 
-### Stage 2: Local Host Application (5 Points)
+Note:- Add test.csv file in folder for model training
+
+### Stage 2: Local Host Application
 - **dashboard.py** - Advanced Streamlit dashboard with chatbot
 - Interactive visualizations and real-time predictions
 - AI-powered chatbot for project queries
 - Multi-page navigation with comprehensive analytics
 
-### Stage 3: Vendor Identification (15 Points)
+### Stage 3: Vendor Identification 
 - **vendor_scraper.py** - Multi-source vendor identification
 - Google Search, IndiaMart, and TradeIndia integration
 - Vendor scoring and recommendation system
 - Contact information and rating analysis
 
-### Stage 4: Construction Project Schedule (10 Points)
+### Stage 4: Construction Project Schedule 
 - **construction_schedule_procurement.py** - Integrated project scheduling
 - 9-phase construction timeline with critical path analysis
 - Material delivery scheduling with lead times
 - Resource requirement planning
 
-### Stage 5: Procurement Management (10 Points)
+### Stage 5: Procurement Management 
 - **procurement_management_platform.py** - Complete procurement platform
 - Workflow management and vendor selection
 - Cost management and budget tracking
 - Quality management and reporting
 
-### Stage 6: Integration & Deployment (10 Points)
+### Stage 6: Integration & Deployment
 - Comprehensive data integration across all modules
 - Automated report generation
 - Risk assessment and mitigation strategies
@@ -203,3 +205,7 @@ python construction_schedule_procurement.py
 streamlit run dashboard.py
 streamlit run procurement_management_platform.py
 ```
+
+Git Hub Link:- https://github.com/vatsaljain-hub/material-prediction
+
+Streamlit Live URL : - https://material-prediction-mzgyt4lqlviwgqxv97hkkg.streamlit.app/
