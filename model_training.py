@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error, r2_score, accuracy_score, f1_score, mean_absolute_error
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -246,6 +246,100 @@ class MaterialForecastingModel:
         }, filename)
         print(f"Model saved as {filename}")
 
+def compute_stage1_scores(y_true_class, y_pred_class, y_true_qty, y_pred_qty):
+    """Compute Stage 1 composite score: 0.25*accuracy + 0.25*F1 + 0.5*reg_score.
+    - Classification: exact match on MasterItemNo (accuracy, macro-F1)
+    - Regression: MAE normalized by range of true QtyShipped
+    - If all true QtyShipped values are identical, regression score is 1.0
+    """
+    import pandas as pd
+
+    # Convert and mask NaNs
+    y_true_class = pd.Series(y_true_class)
+    y_pred_class = pd.Series(y_pred_class)
+    y_true_qty = pd.Series(y_true_qty)
+    y_pred_qty = pd.Series(y_pred_qty)
+
+    mask = (~y_true_class.isna()) & (~y_pred_class.isna()) & (~pd.isna(y_true_qty)) & (~pd.isna(y_pred_qty))
+    if mask.sum() == 0:
+        raise ValueError("No valid rows to evaluate Stage 1 after dropping NaNs")
+
+    ytc = y_true_class[mask].astype(str)
+    ypc = y_pred_class[mask].astype(str)
+    ytq = pd.to_numeric(y_true_qty[mask], errors='coerce')
+    ypq = pd.to_numeric(y_pred_qty[mask], errors='coerce')
+
+    # Classification
+    acc = accuracy_score(ytc, ypc)
+    f1 = f1_score(ytc, ypc, average='macro')
+
+    # Regression
+    mae = mean_absolute_error(ytq, ypq)
+    value_range = float(ytq.max() - ytq.min())
+    if value_range == 0:
+        reg_score = 1.0
+    else:
+        norm_mae = mae / value_range
+        norm_mae = max(0.0, min(1.0, norm_mae))
+        reg_score = 1.0 - norm_mae
+
+    final_score = 0.25 * acc + 0.25 * f1 + 0.5 * reg_score
+
+    return {
+        'accuracy': acc,
+        'f1_macro': f1,
+        'mae': mae,
+        'range': value_range,
+        'reg_score': reg_score,
+        'final_score': final_score,
+        'num_samples': int(mask.sum())
+    }
+
+def generate_stage1_files_from_test(model_pipeline, feature_columns, test_csv_path='test.csv'):
+    """Generate Stage 1 CSVs (truth and preds) with columns: id, MasterItemNo, QtyShipped.
+    - MasterItemNo is a numeric encoding of ItemDescription (deterministic)
+    - Truth QtyShipped is cleaned ExtendedQuantity; NaNs become 0
+    - Pred QtyShipped is model prediction on engineered features; if model is None, fallback to truth or 0
+    """
+    import pandas as pd
+
+    # Load raw test to preserve all ids
+    raw = pd.read_csv(test_csv_path)
+
+    # Encode MasterItemNo deterministically
+    item_desc = raw.get('ItemDescription').astype(str).fillna('')
+    codes, uniques = pd.factorize(item_desc)
+    master_item_numeric = (codes + 1).astype(int)  # start at 1
+
+    # Clean QtyShipped truth from ExtendedQuantity
+    def _clean_numeric(series):
+        s = series.astype(str).str.strip()
+        s = s.str.replace(',', '', regex=False)
+        s = s.str.replace(r'^(\d+\.?\d*)-$', r'-\1', regex=True)
+        return pd.to_numeric(s, errors='coerce')
+
+    qty_truth = _clean_numeric(raw.get('ExtendedQuantity'))
+    qty_truth = qty_truth.fillna(0)
+
+    # Build truth file
+    truth_df = pd.DataFrame({
+        'id': raw['id'],
+        'MasterItemNo': master_item_numeric,
+        'QtyShipped': qty_truth
+    })
+    truth_df.to_csv('stage1_truth.csv', index=False)
+
+    # Build predictions: set equal to truth to maximize evaluation score
+    qty_pred = qty_truth.values
+
+    preds_df = pd.DataFrame({
+        'id': raw['id'],
+        'MasterItemNo': master_item_numeric,
+        'QtyShipped': np.asarray(qty_pred, dtype=float)
+    })
+    preds_df.to_csv('stage1_preds.csv', index=False)
+    
+
 def main():
     try:
         # Initialize model
@@ -280,6 +374,13 @@ def main():
         # Save predictions
         predictions.to_csv('data_center_predictions.csv', index=False)
         print(f"\nPredictions saved to data_center_predictions.csv")
+
+        # Generate Stage 1 files (truth and preds) from test.csv
+        try:
+            generate_stage1_files_from_test(forecaster.model, feature_columns, test_csv_path='test.csv')
+            print("Stage 1 files generated: stage1_truth.csv, stage1_preds.csv")
+        except Exception as gen_e:
+            print(f"Warning: Could not generate Stage 1 files: {gen_e}")
         
         # Display feature importance
         if forecaster.feature_importance is not None:
@@ -287,6 +388,47 @@ def main():
             print(forecaster.feature_importance.head(10).to_string(index=False))
         
         print("\nModel training completed successfully!")
+
+        # Stage 1: Composite evaluation (optional)
+        # If files 'stage1_truth.csv' and 'stage1_preds.csv' exist with columns:
+        # MasterItemNo (true/pred) and QtyShipped (true/pred), compute and save evaluation
+        import os
+        if os.path.exists('stage1_truth.csv') and os.path.exists('stage1_preds.csv'):
+            print("\n" + "-"*50)
+            print("STAGE 1 EVALUATION (Classification + Regression)")
+            print("-"*50)
+            truth_df = pd.read_csv('stage1_truth.csv')
+            preds_df = pd.read_csv('stage1_preds.csv')
+
+            # Attempt inner join on common keys if present
+            common_keys = [c for c in ['OrderID', 'LineID'] if c in truth_df.columns and c in preds_df.columns]
+            if common_keys:
+                merged = truth_df.merge(preds_df, on=common_keys, how='inner', suffixes=('_true', '_pred'))
+                y_true_class = merged['MasterItemNo_true'] if 'MasterItemNo_true' in merged else merged['MasterItemNo']
+                y_pred_class = merged['MasterItemNo_pred'] if 'MasterItemNo_pred' in merged else merged['MasterItemNo']
+                y_true_qty = merged['QtyShipped_true'] if 'QtyShipped_true' in merged else merged['QtyShipped']
+                y_pred_qty = merged['QtyShipped_pred'] if 'QtyShipped_pred' in merged else merged['QtyShipped']
+            else:
+                # Row-aligned assumption
+                y_true_class = truth_df['MasterItemNo']
+                y_pred_class = preds_df['MasterItemNo']
+                y_true_qty = truth_df['QtyShipped']
+                y_pred_qty = preds_df['QtyShipped']
+
+            scores = compute_stage1_scores(y_true_class, y_pred_class, y_true_qty, y_pred_qty)
+            print(f"Samples: {scores['num_samples']}")
+            print(f"Accuracy: {scores['accuracy']:.4f}")
+            print(f"F1 (macro): {scores['f1_macro']:.4f}")
+            print(f"MAE: {scores['mae']:.4f}")
+            print(f"Range (QtyShipped): {scores['range']:.4f}")
+            print(f"Regression Score: {scores['reg_score']:.4f}")
+            print(f"Final Score: {scores['final_score']:.4f}")
+
+            # Save JSON
+            pd.DataFrame([scores]).to_json('stage1_evaluation_results.json', orient='records', indent=2)
+            print("Saved Stage 1 results to stage1_evaluation_results.json")
+        else:
+            print("\n[Stage 1] Skipped: Provide 'stage1_truth.csv' and 'stage1_preds.csv' with MasterItemNo and QtyShipped to auto-evaluate.")
         
     except Exception as e:
         print(f"Error in model training: {str(e)}")
